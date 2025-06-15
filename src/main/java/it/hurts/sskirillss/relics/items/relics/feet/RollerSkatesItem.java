@@ -5,6 +5,8 @@ import it.hurts.sskirillss.relics.api.events.common.LivingSlippingEvent;
 import it.hurts.sskirillss.relics.init.ItemRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
+import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
+import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.AbilitiesData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.AbilityData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingData;
@@ -32,6 +34,9 @@ public class RollerSkatesItem extends RelicItem {
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder("skating")
+                                .active(CastData.builder()
+                                        .type(CastType.TOGGLEABLE)
+                                        .build())
                                 .stat(StatData.builder("speed")
                                         .initialValue(0.001D, 0.005D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
@@ -54,6 +59,9 @@ public class RollerSkatesItem extends RelicItem {
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         if (!(slotContext.entity() instanceof Player player))
+            return;
+
+        if (!isAbilityTicking(stack, "skating"))
             return;
 
         int duration = stack.getOrDefault(CHARGE, 0);
@@ -99,6 +107,10 @@ public class RollerSkatesItem extends RelicItem {
             if (stack.isEmpty())
                 return;
 
+            var item = (RollerSkatesItem) stack.getItem();
+            if (!item.isAbilityTicking(stack, "skating"))
+                return;
+
             event.setFriction(1.075F);
         }
 
@@ -110,6 +122,10 @@ public class RollerSkatesItem extends RelicItem {
             ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.ROLLER_SKATES.get());
 
             if (stack.isEmpty())
+                return;
+
+            var item = (RollerSkatesItem) stack.getItem();
+            if (!item.isAbilityTicking(stack, "skating"))
                 return;
 
             event.setSpeedFactor(1F);
