@@ -61,8 +61,12 @@ public class RollerSkatesItem extends RelicItem {
         if (!(slotContext.entity() instanceof Player player))
             return;
 
-        if (!isAbilityTicking(stack, "skating"))
+        if (!isAbilityTicking(stack, "skating")) {
+            EntityUtils.removeAttribute(player, stack, Attributes.MOVEMENT_SPEED, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+            EntityUtils.removeAttribute(player, stack, Attributes.STEP_HEIGHT, AttributeModifier.Operation.ADD_VALUE);
+            stack.remove(CHARGE);
             return;
+        }
 
         int duration = stack.getOrDefault(CHARGE, 0);
 
@@ -80,8 +84,9 @@ public class RollerSkatesItem extends RelicItem {
         if (duration > 0) {
             EntityUtils.applyAttribute(player, stack, Attributes.MOVEMENT_SPEED, (float) (duration * getStatValue(stack, "skating", "speed")), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
             EntityUtils.applyAttribute(player, stack, Attributes.STEP_HEIGHT, 0.6F, AttributeModifier.Operation.ADD_VALUE);
-        } else
+        } else {
             EntityUtils.removeAttribute(player, stack, Attributes.STEP_HEIGHT, AttributeModifier.Operation.ADD_VALUE);
+        }
     }
 
     @Override
